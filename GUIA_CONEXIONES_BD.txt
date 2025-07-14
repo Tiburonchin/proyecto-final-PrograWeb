@@ -1,0 +1,274 @@
+GUÍA DETALLADA: SISTEMA DE CONEXIONES A BASE DE DATOS
+==================================================
+
+1. ARQUITECTURA DEL SISTEMA
+-------------------------
+1.1. Patrón de Diseño:
+- Arquitectura MVC (Modelo-Vista-Controlador)
+- Capa de abstracción de datos mediante PDO
+- Patrón Singleton para la gestión de conexiones
+
+1.2. Componentes Principales:
+- `DBManager`: Gestor centralizado de conexiones
+- `BaseModel`: Clase base para modelos de datos
+- Controladores: Gestionan el flujo de la aplicación
+- Vistas: Muestran los datos al usuario
+
+2. ARCHIVOS DE CONFIGURACIÓN
+--------------------------
+2.1. `config/database.php`
+```php
+<?php
+define('DBDRIVER', 'mysql');      // Motor de base de datos
+define('DBHOST', 'localhost');    // Servidor de base de datos
+define('DBNAME', 'gimnasio');     // Nombre de la base de datos
+define('DBUSER', 'root');         // Usuario de la base de datos
+define('DBPASS', 'usbw');         // Contraseña del usuario
+```
+
+2.2. `config/global.php`
+- Define constantes de rutas
+- Configuración de entorno
+- Constantes de la aplicación
+
+3. NÚCLEO DEL SISTEMA
+-------------------
+3.1. DBManager (core/DBManager.php)
+- Implementa el patrón Singleton
+- Gestiona la conexión PDO
+- Configuración de opciones PDO:
+  - Modo de error: Excepciones
+  - Modo de obtención: Arrays asociativos
+  - Desactiva emulación de prepared statements
+
+3.2. BaseModel (core/BaseModel.php)
+- Proporciona funcionalidad CRUD
+- Métodos principales:
+  - `query()`: Ejecuta consultas preparadas
+  - `insert()`: Inserta nuevos registros
+  - `update()`: Actualiza registros existentes
+  - `delete()`: Elimina registros
+  - `beginTransaction()`: Inicia una transacción
+  - `commit()`: Confirma una transacción
+  - `rollBack()`: Revierte una transacción
+
+4. FLUJO DE UNA CONEXIÓN
+----------------------
+4.1. Inicialización:
+```
+index.php
+    ↓
+cargar config/global.php
+    ↓
+registrar autoloader
+    ↓
+FrontController::main()
+```
+
+4.2. Establecimiento de conexión:
+```
+Modelo necesita acceso a BD
+    ↓
+DBManager::getInstance()
+    ↓
+DBManager->getConnection()
+    ↓
+Si no existe conexión:
+    1. Crear nueva instancia PDO
+    2. Configurar opciones
+    3. Almacenar conexión
+    ↓
+Devolver conexión PDO
+```
+
+5. EJEMPLOS PRÁCTICOS
+-------------------
+5.1. Controlador de Ejemplo (UsuarioController.php)
+```php
+class UsuarioController extends BaseController {
+    private $usuarioModel;
+    
+    public function __construct() {
+        // Inicialización del modelo
+        $this->usuarioModel = new UsuarioModel();
+    }
+    
+    public function verPerfil($id) {
+        try {
+            // Obtener datos del modelo
+            $usuario = $this->usuarioModel->obtenerPorId($id);
+            
+            // Cargar vista con datos
+            $this->render('usuario/perfil', [
+                'usuario' => $usuario
+            ]);
+            
+        } catch (Exception $e) {
+            // Manejo de errores
+            $this->redirect('error', [
+                'mensaje' => 'Error al cargar el perfil'
+            ]);
+        }
+    }
+}
+```
+
+5.2. Modelo de Ejemplo (UsuarioModel.php)
+```php
+class UsuarioModel extends BaseModel {
+    /**
+     * Obtiene un usuario por su ID
+     * @param int $id ID del usuario
+     * @return array Datos del usuario
+     */
+    public function obtenerPorId($id) {
+        // Consulta preparada con parámetros nombrados
+        $sql = "SELECT id, nombre, email, rol 
+                FROM usuarios 
+                WHERE id = :id";
+                
+        // Parámetros para la consulta
+        $params = [':id' => $id];
+        
+        // Ejecutar consulta y devolver resultado
+        return $this->query($sql, $params)->fetch();
+    }
+    
+    /**
+     * Actualiza el último acceso de un usuario
+     * @param int $usuarioId ID del usuario
+     * @return bool Éxito de la operación
+     */
+    public function actualizarUltimoAcceso($usuarioId) {
+        $data = [
+            'ultimo_acceso' => date('Y-m-d H:i:s')
+        ];
+        
+        $where = ['id' => $usuarioId];
+        
+        return $this->update('usuarios', $data, $where);
+    }
+}
+```
+
+6. GESTIÓN DE ERRORES Y SEGURIDAD
+------------------------------
+6.1. Manejo de Errores:
+- Uso de bloques try-catch en controladores
+- Registro de errores en archivo de log
+- Mensajes de error amigables para el usuario
+
+6.2. Seguridad:
+- Consultas preparadas para prevenir inyección SQL
+- Hash de contraseñas con password_hash()
+- Validación de entrada de datos
+- Escape de salida en vistas
+- Protección CSRF en formularios
+
+6.3. Validación de Datos:
+```php
+public function validarDatosUsuario($datos) {
+    $errores = [];
+    
+    // Validar email
+    if (empty($datos['email']) || !filter_var($datos['email'], FILTER_VALIDATE_EMAIL)) {
+        $errores[] = 'El email no es válido';
+    }
+    
+    // Validar contraseña
+    if (strlen($datos['password']) < 8) {
+        $errores[] = 'La contraseña debe tener al menos 8 caracteres';
+    }
+    
+    return $errores;
+}
+```
+
+7. RENDIMIENTO Y OPTIMIZACIÓN
+--------------------------
+7.1. Gestión de Conexiones:
+- Conexión única por petición
+- Cierre automático de conexiones
+- Pool de conexiones en entornos de alta concurrencia
+
+7.2. Optimización de Consultas:
+- Uso de índices en tablas
+- Selección de solo las columnas necesarias
+- Uso de JOINs optimizados
+- Caché de consultas frecuentes
+
+7.3. Transacciones:
+```php
+try {
+    // Iniciar transacción
+    $this->beginTransaction();
+    
+    // Operaciones SQL...
+    $this->insert('tabla1', $data1);
+    $this->update('tabla2', $data2, $where);
+    
+    // Confirmar cambios
+    $this->commit();
+    
+} catch (Exception $e) {
+    // Revertir en caso de error
+    $this->rollBack();
+    throw $e;
+}
+```
+
+8. MIGRACIONES Y VERSIONADO
+-------------------------
+8.1. Estructura de Migraciones:
+```
+/database/
+  /migrations/
+    20230101000000_crear_tabla_usuarios.php
+    20230102000000_agregar_campo_telefono.php
+```
+
+8.2. Ejemplo de Migración:
+```php
+class CrearTablaUsuarios {
+    public function up() {
+        $sql = "CREATE TABLE usuarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(100) NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+        
+        DB::getInstance()->exec($sql);
+    }
+    
+    public function down() {
+        $sql = "DROP TABLE IF EXISTS usuarios";
+        DB::getInstance()->exec($sql);
+    }
+}
+```
+
+9. PRUEBAS
+---------
+9.1. Pruebas Unitarias:
+- Pruebas de modelos
+- Pruebas de validación
+- Pruebas de lógica de negocio
+
+9.2. Pruebas de Integración:
+- Pruebas de controladores
+- Pruebas de rutas
+- Pruebas de API
+
+10. MONITOREO Y MANTENIMIENTO
+--------------------------
+10.1. Monitoreo:
+- Consultas lentas
+- Uso de recursos
+- Errores de conexión
+
+10.2. Mantenimiento:
+- Optimización de tablas
+- Respaldo periódico
+- Actualización de índices

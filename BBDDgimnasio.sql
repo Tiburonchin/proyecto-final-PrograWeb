@@ -14,18 +14,19 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `asistenciaclases`;
 
 CREATE TABLE `asistenciaclases` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `idClase` int(11) NOT NULL,
-  `idAlumno` int(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `idAlumno` int(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
 
 --
 -- Volcado de datos para la tabla `asistenciaclases`
 --
 
-INSERT INTO `asistenciaclases` (`id`, `idClase`, `idAlumno`) VALUES
-(0, 1, 2),
-(0, 1, 2);
+INSERT INTO `asistenciaclases` (`idClase`, `idAlumno`) VALUES
+(1, 2),
+(1, 2);
 
 -- --------------------------------------------------------
 
