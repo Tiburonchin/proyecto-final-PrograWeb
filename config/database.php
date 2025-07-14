@@ -7,6 +7,6 @@ define('DBDRIVER', 'mysql');
 define('DBHOST', 'localhost');
 define('DBNAME', 'gimnasio');
 define('DBUSER', 'root');
-define('DBPASS', '');
+define('DBPASS', 'usbw');
 
 

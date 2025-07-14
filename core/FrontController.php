@@ -36,14 +36,40 @@ class FrontController
       }
       require $controller_path;
 
-      //Si no existe la clase que buscamos y su método mostramos un error
-      if (!is_callable(array($controller, $action))) {
-         throw new \Exception($controller . '->' . $action . ' no existe');
+      // Check if class exists
+      if (!class_exists($controller)) {
+         throw new \Exception('La clase ' . $controller . ' no existe');
       }
 
-      //Si todo esta bien, creamos una instancia del controlador
-      //  y llamamos a la accion
-      $controller = new $controller();
-      $controller->$action();
+      // Create controller instance
+      try {
+         $controllerInstance = new $controller();
+      } catch (Exception $e) {
+         throw $e;
+      }
+
+      // Check if method exists and is public
+      if (!method_exists($controllerInstance, $action)) {
+         throw new \Exception('El método ' . $action . ' no existe en el controlador ' . $controller);
+      }
+
+      // Verify method is public
+      $reflection = new \ReflectionMethod($controller, $action);
+      if (!$reflection->isPublic()) {
+         throw new \Exception('El método ' . $action . ' no es accesible en el controlador ' . $controller);
+      }
+
+      // Call the method
+      try {
+         $controllerInstance->$action();
+      } catch (Exception $e) {
+         echo "<div style='background: #f8d7da; padding: 10px; margin: 10px 0; border: 1px solid #f5c6cb;'>";
+         echo "<strong>Error calling $controller->$action():</strong> " . $e->getMessage() . "<br>";
+         echo "<pre>";
+         debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+         echo "</pre>";
+         echo "</div>";
+         throw $e;
+      }
    }
 }

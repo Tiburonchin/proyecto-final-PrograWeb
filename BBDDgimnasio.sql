@@ -1,31 +1,17 @@
--- phpMyAdmin SQL Dump
--- version 5.0.2
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 24-02-2021 a las 17:29:15
--- Versión del servidor: 10.4.14-MariaDB
--- Versión de PHP: 7.4.10
+-- Crear base de datos si no existe
+CREATE DATABASE IF NOT EXISTS `gimnasio`;
+USE `gimnasio`;
 
+-- Configuración básica
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de datos: `gimnasio`
---
-
--- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `asistenciaclases`
 --
+
+DROP TABLE IF EXISTS `asistenciaclases`;
 
 CREATE TABLE `asistenciaclases` (
   `id` int(11) NOT NULL,
@@ -46,6 +32,8 @@ INSERT INTO `asistenciaclases` (`id`, `idClase`, `idAlumno`) VALUES
 --
 -- Estructura de tabla para la tabla `clases`
 --
+
+DROP TABLE IF EXISTS `clases`;
 
 CREATE TABLE `clases` (
   `id` int(11) NOT NULL,
@@ -69,6 +57,8 @@ INSERT INTO `clases` (`id`, `nombre`, `descripcion`,`Imagen`) VALUES
 --
 -- Estructura de tabla para la tabla `clasesexistentes`
 --
+
+DROP TABLE IF EXISTS `clasesexistentes`;
 
 CREATE TABLE `clasesexistentes` (
   `id` int(11) NOT NULL,
@@ -103,6 +93,8 @@ INSERT INTO `clasesexistentes` (`id`, `idClase`, `Dia`, `duracion`, `horaInicio`
 -- Estructura de tabla para la tabla `usuarios`
 --
 
+DROP TABLE IF EXISTS `usuarios`;
+
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
   `nif` varchar(9) DEFAULT NULL,
@@ -123,10 +115,10 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nif`, `nombre`, `apellido1`, `apellido2`, `usuario`, `password`, `email`, `imagen`, `telefono`, `direccion`, `rol_id`) VALUES
-(1, '49118359L', 'Manuel', 'Urbano', '', 'manu', '123', 'saddasd2@gmail.es', NULL, 666666666, 'Calle 123,3', 0),
-(2, '49118359L', 'Ana', 'Maria', 'Perez', 'ana', '123', 'saddasd2@gmail.es', NULL, 666666666, 'Av.Andalucia,4', 1),
-(3, '49118359L', 'Pedro', 'Marquez', 'Garcia', 'Pedrito', '123', '123@gmail.com', NULL, 666666666, 'Calle Paz123,5A', 2),
-(4, '49118359L', 'Carlos', 'Crivi', 'Perez', 'Carlitos', '123', 'carlos123@gmail.com', NULL, 666666666, 'Calle Loco,123', 2);
+(1, '49118359L', 'Administrador', 'Sistema', '', 'tibu', '123', 'admin@gmail.es', NULL, 666666666, 'Calle admin,3', 0),
+(2, '49118359L', 'Fernando', 'Altamirano', 'Quizpe', 'fer', '123', 'fernandito@gmail.es', NULL, 666666666, 'Av.Andalucia,4', 1),
+(3, '49118359L', 'Jeyson', 'Ramirez', 'Guerrero', 'Jrg18_04', '123', 'jeyson@gmail.es', NULL, 666666666, 'Calle Paz123,5A', 2),
+(4, '49118359L', 'Edgar ', 'Ramos', 'Trujillo', 'Tiburonsin', '123', 'earamost@unac.edu.pe', NULL, 666666666, 'Calle Loco,123', 2);
 
 --
 -- Índices para tablas volcadas
@@ -161,6 +153,4 @@ ALTER TABLE `usuarios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- Fin del archivo SQL

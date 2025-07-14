@@ -17,8 +17,8 @@
 
         <!-- Content -->
         <h5 class="font-weight-bold lead text-uppercase mt-3 mb-4">Gimnasio Virtual</h5>
-        <p class="lead">Practica 1º Trimestre PHP con MVC</p>
-        <p class="lead">José Manuel Urbano</p>
+        <p class="lead">Proyecto Final - Programación WEB</p>
+        <p class="lead">Edgar Ramos Trujillo - Bryan Porras Aurelio</p>
 
       </div>
 

@@ -1,2 +1,2 @@
 # GimnasioPHP
-Proyecto 1º Trimestre PHP MVC
+Proyecto Final PHP MVC
